@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
@@ -25,7 +24,9 @@ public class TheGame implements ApplicationListener{
     private ShaderProgram shader;
     //TODO Move this out to some world handler or something
     private World world;
-    private EntityPlayer player;
+
+    private static final float TIME_STEP = 1F/10F;
+    private double accumulator;
 
     public TheGame(){
         if(instance == null){
@@ -57,8 +58,7 @@ public class TheGame implements ApplicationListener{
         }
 
         this.world = new World();
-        this.player = new EntityPlayer(this.world, 0, 30, 0, this.camera);
-        this.world.addEntity(this.player, true);
+        this.world.addEntity(new EntityPlayer(this.world, 0, 30, 0, this.camera), true);
     }
 
     @Override
@@ -68,6 +68,11 @@ public class TheGame implements ApplicationListener{
 
     @Override
     public void render(){
+        this.doUpdate();
+        this.doRender();
+    }
+
+    private void doRender(){
         Gdx.gl.glClearColor(1F, 0F, 1F, 1F);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
@@ -88,8 +93,22 @@ public class TheGame implements ApplicationListener{
 
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+    }
 
-        this.world.update();
+    private void doUpdate(){
+        float frameTime = Math.min(Gdx.graphics.getDeltaTime(), 0.25F);
+        this.accumulator += frameTime;
+
+        while(this.accumulator >= TIME_STEP){
+            this.accumulator -= TIME_STEP;
+
+            this.world.update();
+        }
+
+        //TODO Move this to a better controller thing
+        for(EntityPlayer player : this.world.players){
+            player.controller.update();
+        }
     }
 
     @Override

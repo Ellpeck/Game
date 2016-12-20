@@ -8,7 +8,7 @@ import de.ellpeck.game.world.World;
 //TODO Move controlling to a different class and use a custom controlling system?
 public class EntityPlayer extends Entity{
 
-    private final FirstPersonCameraController controller;
+    public final FirstPersonCameraController controller;
 
     public EntityPlayer(World world, int x, int y, int z, PerspectiveCamera camera){
         super(world, x, y, z);
@@ -25,11 +25,5 @@ public class EntityPlayer extends Entity{
         };
         this.controller.setVelocity(30F);
         Gdx.input.setInputProcessor(this.controller);
-    }
-
-    @Override
-    public void update(){
-        super.update();
-        this.controller.update();
     }
 }

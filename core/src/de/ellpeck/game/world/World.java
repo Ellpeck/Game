@@ -8,7 +8,6 @@ import de.ellpeck.game.entity.EntityPlayer;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.CoordUtil;
-import de.ellpeck.game.util.MathUtil;
 import de.ellpeck.game.world.chunk.Chunk;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class World implements Disposable{
 
     private static final int MAX_CHUNK_VIEW = 2;
-    private static final int MAX_CHUNK_VIEW_SQ = MAX_CHUNK_VIEW*MAX_CHUNK_VIEW;
 
     private final Map<Long, Chunk> loadedChunks = new ConcurrentHashMap<>();
     public final List<EntityPlayer> players = new ArrayList<>();
@@ -87,12 +85,13 @@ public class World implements Disposable{
 
     public Chunk getChunkFromChunkCoords(int x, int z, boolean forceLoad){
         long id = CoordUtil.getChunkId(x, z);
-        if(this.loadedChunks.containsKey(id)){
-            return this.loadedChunks.get(id);
+        Chunk chunk = this.loadedChunks.get(id);
+        if(chunk != null){
+            return chunk;
         }
         else{
             if(forceLoad){
-                Chunk chunk = new Chunk(this, x, z);
+                chunk = new Chunk(this, x, z);
                 this.loadedChunks.put(id, chunk);
                 this.populateChunk(chunk);
 

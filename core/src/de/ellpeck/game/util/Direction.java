@@ -9,6 +9,10 @@ public enum Direction{
     SOUTH(0, 0, -1),
     WEST(-1, 0, 0);
 
+    public static final Direction[] HORIZONTAL = new Direction[]{NORTH, EAST, SOUTH, WEST};
+    public static final Direction[] VERTICAL = new Direction[]{UP, DOWN};
+    public static final Direction[] ALL = new Direction[]{UP, DOWN, NORTH, EAST, SOUTH, WEST};
+
     public final int xOffset;
     public final int yOffset;
     public final int zOffset;

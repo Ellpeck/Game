@@ -10,6 +10,7 @@ import de.ellpeck.game.entity.EntityPlayer;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.CoordUtil;
+import de.ellpeck.game.util.Direction;
 import de.ellpeck.game.world.ChunkMesh;
 import de.ellpeck.game.world.TileLayer;
 import de.ellpeck.game.world.World;
@@ -71,7 +72,7 @@ public class Chunk implements Disposable{
 
         if(layer != null){
             if(layer.setTile(x, z, tile, meta)){
-                this.shouldReformMesh = true;
+                this.reformMeshesAround(x, z);
                 return true;
             }
         }
@@ -92,7 +93,7 @@ public class Chunk implements Disposable{
         TileLayer layer = this.getTileLayer(y);
         if(layer != null){
             if(layer.setMetadata(x, z, meta)){
-                this.shouldReformMesh = true;
+                this.reformMeshesAround(x, z);
                 return true;
             }
         }
@@ -105,6 +106,19 @@ public class Chunk implements Disposable{
         }
         else{
             return null;
+        }
+    }
+
+    private void reformMeshesAround(int xChanged, int zChanged){
+        this.shouldReformMesh = true;
+
+        if(xChanged == 0 || xChanged == SIZE-1 || zChanged == 0 || zChanged == SIZE-1){
+            for(Direction dir : Direction.HORIZONTAL){
+                Chunk chunk = this.world.getChunkFromChunkCoords(this.x+dir.xOffset, this.z+dir.zOffset, false);
+                if(chunk != null){
+                    chunk.shouldReformMesh = true;
+                }
+            }
         }
     }
 
