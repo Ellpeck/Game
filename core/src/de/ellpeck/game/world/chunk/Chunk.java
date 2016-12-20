@@ -3,7 +3,10 @@ package de.ellpeck.game.world.chunk;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import de.ellpeck.game.Registry;
+import de.ellpeck.game.TheGame;
 import de.ellpeck.game.entity.Entity;
+import de.ellpeck.game.entity.EntityPlayer;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.CoordUtil;
@@ -14,6 +17,7 @@ import de.ellpeck.game.world.World;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO Make players not only load the chunk they are in but also the ones around them (and unload ones out of reach)
 public class Chunk implements Disposable{
 
     public static final int SIZE = 16;
@@ -27,6 +31,7 @@ public class Chunk implements Disposable{
     public final int x;
     public final int z;
 
+    public boolean loadedByPlayer;
     public boolean shouldReformMesh;
     public final ChunkMesh mesh = new ChunkMesh(this);
 
@@ -112,18 +117,20 @@ public class Chunk implements Disposable{
         for(int i = 0; i < this.entities.size(); i++){
             Entity entity = this.entities.get(i);
 
-            boolean shouldRemove = entity.shouldRemove();
+            boolean removeFromWorld = entity.shouldRemove();
+            boolean removeFromChunk = removeFromWorld;
 
-            if(!shouldRemove){
-                int estChunkX = CoordUtil.toChunk(entity.x);
-                int estChunkZ = CoordUtil.toChunk(entity.z);
+            if(!removeFromChunk){
+                int estChunkX = CoordUtil.coordsOfIncludingChunk(entity.x);
+                int estChunkZ = CoordUtil.coordsOfIncludingChunk(entity.z);
 
                 if(entity.chunkX != estChunkX || entity.chunkZ != estChunkZ){
-                    shouldRemove = true;
+                    removeFromChunk = true;
 
-                    Chunk newChunk = this.world.getChunkFromChunkCoords(estChunkX, estChunkZ, false);
+                    Chunk newChunk = this.world.getChunkFromChunkCoords(estChunkX, estChunkZ, entity instanceof EntityPlayer);
                     if(newChunk != null){
                         newChunk.addEntity(entity);
+                        TheGame.LOGGER.debug("Moved entity "+entity+" from chunk at "+this.x+", "+this.z+" to chunk at "+newChunk.x+", "+newChunk.z+".");
                     }
                     else{
                         throw new GdxRuntimeException("Tried to move an entity to a non-existant chunk!");
@@ -133,10 +140,20 @@ public class Chunk implements Disposable{
                 entity.update();
             }
 
-            if(shouldRemove){
-                if(entity.shouldRemove()){
-                    this.entities.remove(i);
-                    i--;
+            if(removeFromChunk){
+                TheGame.LOGGER.debug("Removed entity "+entity+" from chunk at "+this.x+", "+this.z+".");
+
+                this.entities.remove(i);
+                i--;
+
+                if(removeFromWorld){
+                    entity.onRemove();
+
+                    if(entity instanceof EntityPlayer){
+                        this.world.players.remove(entity);
+                    }
+
+                    TheGame.LOGGER.debug("Removed entity "+entity+" from world entirely!");
                 }
             }
         }
@@ -152,10 +169,6 @@ public class Chunk implements Disposable{
                 activity.update();
             }
         }
-    }
-
-    public boolean shouldUnload(){
-        return false; //TODO unload chunks
     }
 
     public void onUnload(){
@@ -174,7 +187,13 @@ public class Chunk implements Disposable{
     }
 
     public void populate(){
-        //TODO World gen
+        for(int x = 0; x < SIZE; x++){
+            for(int z = 0; z < SIZE; z++){
+                for(int y = 0; y < 20; y++){
+                    this.setTile(x, y, z, Registry.TILE_ROCK, 0);
+                }
+            }
+        }
     }
 
     @Override

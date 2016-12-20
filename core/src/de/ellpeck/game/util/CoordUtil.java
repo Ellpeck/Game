@@ -4,12 +4,12 @@ import de.ellpeck.game.world.chunk.Chunk;
 
 public final class CoordUtil{
 
-    public static int toChunk(double pos){
+    public static int coordsOfIncludingChunk(double pos){
         return (int)Math.floor(pos/(double)Chunk.SIZE);
     }
 
-    public static int toChunkIntern(int pos){
-        return pos-toChunk(pos)*Chunk.SIZE;
+    public static int relativeToIncludingChunk(int pos){
+        return pos-coordsOfIncludingChunk(pos)*Chunk.SIZE;
     }
 
     public static long getChunkId(int x, int z){

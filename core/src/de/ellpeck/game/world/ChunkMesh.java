@@ -13,8 +13,6 @@ import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.util.Direction;
 import de.ellpeck.game.world.chunk.Chunk;
 
-import java.util.Arrays;
-
 public class ChunkMesh implements Disposable{
 
     private final Vector3 tempVec00 = new Vector3();
@@ -42,7 +40,7 @@ public class ChunkMesh implements Disposable{
     private static final int FACES_PER_CUBE = 6;
     private static final int MAX_VERTEX_DATA = VERTEX_PER_TRIANGLE*TRIANGLES_PER_FACE*FACES_PER_CUBE*Chunk.SIZE*Chunk.HEIGHT*Chunk.SIZE*COMPONENTS_TOTAL;
 
-    private final float[] vertices = new float[MAX_VERTEX_DATA];
+    private float[] vertices;
 
     private Mesh mesh;
     private final Chunk chunk;
@@ -55,12 +53,12 @@ public class ChunkMesh implements Disposable{
     }
 
     public void makeNewMesh(){
+        this.vertices = new float[MAX_VERTEX_DATA];
+        this.vertexCount = 0;
+        this.floatIndex = 0;
+
         if(this.mesh != null){
             this.mesh.dispose();
-
-            this.vertexCount = 0;
-            this.floatIndex = 0;
-            Arrays.fill(this.vertices, 0);
         }
 
         for(int x = 0; x < Chunk.SIZE; x++){
@@ -79,8 +77,10 @@ public class ChunkMesh implements Disposable{
                 new VertexAttribute(Usage.TextureCoordinates, TEXTURE_COORDS, "a_textureCoords"),
                 new VertexAttribute(Usage.Normal, NORMAL_COMPONENTS, "a_normal"));
         this.mesh.setVertices(this.vertices, 0, this.floatIndex-1);
+        this.vertices = null;
 
-        TheGame.LOGGER.info("Made mesh for chunk at "+this.chunk.x+", "+this.chunk.z+". Totals: "+this.vertexCount+" vertices, "+(this.floatIndex-1)+" floats of max "+this.vertices.length+".");
+        TheGame.LOGGER.debug("Made mesh for chunk at "+this.chunk.x+", "+this.chunk.z+". Totals: "+this.vertexCount+" vertices, "+(this.floatIndex-1)+" floats of max "+MAX_VERTEX_DATA+".");
+
     }
 
     private void addTile(Tile tile, int x, int y, int z, float size){

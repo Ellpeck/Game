@@ -32,6 +32,10 @@ public class Entity implements Disposable{
 
     }
 
+    public void onRemove(){
+
+    }
+
     @Override
     public void dispose(){
 

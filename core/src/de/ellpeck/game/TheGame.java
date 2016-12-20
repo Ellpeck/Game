@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.ellpeck.game.entity.EntityPlayer;
 import de.ellpeck.game.world.World;
 
 public class TheGame implements ApplicationListener{
@@ -21,10 +22,10 @@ public class TheGame implements ApplicationListener{
     //TODO Move all of this out to some sort of client handler
     private PerspectiveCamera camera;
     private Viewport viewport;
-    private FirstPersonCameraController controller;
     private ShaderProgram shader;
     //TODO Move this out to some world handler or something
     private World world;
+    private EntityPlayer player;
 
     public TheGame(){
         if(instance == null){
@@ -41,10 +42,8 @@ public class TheGame implements ApplicationListener{
 
         this.camera = new PerspectiveCamera();
         this.camera.near = 0.1F;
-        this.camera.position.set(5, 5, 10);
+        this.camera.position.set(5, 25, 10);
         this.viewport = new ScalingViewport(Scaling.fill, 1, 1, this.camera);
-        this.controller = new FirstPersonCameraController(this.camera);
-        Gdx.input.setInputProcessor(this.controller);
 
         this.shader = new ShaderProgram(Gdx.files.local("game/shaders/world_vertex.glsl"), Gdx.files.local("game/shaders/world_fragment.glsl"));
         if(!this.shader.isCompiled()){
@@ -58,14 +57,8 @@ public class TheGame implements ApplicationListener{
         }
 
         this.world = new World();
-        this.world.setTile(0, 0, 0, Registry.TILE_LOG, 0, true);
-        this.world.setTile(0, 0, 2, Registry.TILE_LOG, 1, true);
-        this.world.setTile(0, 0, 4, Registry.TILE_LOG, 2, true);
-        this.world.setTile(0, 0, 6, Registry.TILE_LOG, 3, true);
-
-        this.world.setTile(0, 2, 1, Registry.TILE_DIRT, 0, true);
-        this.world.setTile(0, 2, 3, Registry.TILE_GRASS, 0, true);
-        this.world.setTile(0, 2, 5, Registry.TILE_ROCK, 0, true);
+        this.player = new EntityPlayer(this.world, 0, 30, 0, this.camera);
+        this.world.addEntity(this.player, true);
     }
 
     @Override
@@ -96,7 +89,6 @@ public class TheGame implements ApplicationListener{
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDisable(GL20.GL_CULL_FACE);
 
-        this.controller.update();
         this.world.update();
     }
 
