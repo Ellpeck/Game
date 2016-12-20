@@ -17,7 +17,7 @@ import de.ellpeck.game.world.World;
 public class TheGame implements ApplicationListener{
 
     private static TheGame instance;
-    public static final Logger LOGGER = new Logger("TheGame", Logger.DEBUG);
+    public static final Logger LOGGER = new Logger("TheGame", Logger.NONE);
 
     //TODO Move all of this out to some sort of client handler
     private PerspectiveCamera camera;

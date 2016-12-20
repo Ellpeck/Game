@@ -23,6 +23,7 @@ public class EntityPlayer extends Entity{
                 EntityPlayer.this.z = camera.position.z;
             }
         };
+        this.controller.setVelocity(30F);
         Gdx.input.setInputProcessor(this.controller);
     }
 

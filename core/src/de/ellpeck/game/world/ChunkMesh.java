@@ -8,10 +8,13 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.FloatArray;
 import de.ellpeck.game.TheGame;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.util.Direction;
 import de.ellpeck.game.world.chunk.Chunk;
+
+import java.util.List;
 
 public class ChunkMesh implements Disposable{
 
@@ -40,12 +43,11 @@ public class ChunkMesh implements Disposable{
     private static final int FACES_PER_CUBE = 6;
     private static final int MAX_VERTEX_DATA = VERTEX_PER_TRIANGLE*TRIANGLES_PER_FACE*FACES_PER_CUBE*Chunk.SIZE*Chunk.HEIGHT*Chunk.SIZE*COMPONENTS_TOTAL;
 
-    private float[] vertices;
+    private final FloatArray vertices = new FloatArray();
 
     private Mesh mesh;
     private final Chunk chunk;
 
-    private int floatIndex;
     private int vertexCount;
 
     public ChunkMesh(Chunk chunk){
@@ -53,9 +55,8 @@ public class ChunkMesh implements Disposable{
     }
 
     public void makeNewMesh(){
-        this.vertices = new float[MAX_VERTEX_DATA];
+        this.vertices.clear();
         this.vertexCount = 0;
-        this.floatIndex = 0;
 
         if(this.mesh != null){
             this.mesh.dispose();
@@ -76,11 +77,9 @@ public class ChunkMesh implements Disposable{
                 new VertexAttribute(Usage.Position, POSITION_COMPONENTS, "a_position"),
                 new VertexAttribute(Usage.TextureCoordinates, TEXTURE_COORDS, "a_textureCoords"),
                 new VertexAttribute(Usage.Normal, NORMAL_COMPONENTS, "a_normal"));
-        this.mesh.setVertices(this.vertices, 0, this.floatIndex-1);
-        this.vertices = null;
+        this.mesh.setVertices(this.vertices.shrink(), 0, this.vertices.size);
 
-        TheGame.LOGGER.debug("Made mesh for chunk at "+this.chunk.x+", "+this.chunk.z+". Totals: "+this.vertexCount+" vertices, "+(this.floatIndex-1)+" floats of max "+MAX_VERTEX_DATA+".");
-
+        TheGame.LOGGER.debug("Made mesh for chunk at "+this.chunk.x+", "+this.chunk.z+". Totals: "+this.vertexCount+" vertices, "+(this.vertices.size)+" floats of max "+MAX_VERTEX_DATA+".");
     }
 
     private void addTile(Tile tile, int x, int y, int z, float size){
@@ -163,16 +162,16 @@ public class ChunkMesh implements Disposable{
     private void addVertex(Vector3 position, Vector3 normal, Vector2 uv){
         this.vertexCount++;
 
-        this.vertices[this.floatIndex++] = position.x;
-        this.vertices[this.floatIndex++] = position.y;
-        this.vertices[this.floatIndex++] = position.z;
+        this.vertices.add(position.x);
+        this.vertices.add(position.y);
+        this.vertices.add(position.z);
 
-        this.vertices[this.floatIndex++] = uv.x;
-        this.vertices[this.floatIndex++] = uv.y;
+        this.vertices.add(uv.x);
+        this.vertices.add(uv.y);
 
-        this.vertices[this.floatIndex++] = normal.x;
-        this.vertices[this.floatIndex++] = normal.y;
-        this.vertices[this.floatIndex++] = normal.z;
+        this.vertices.add(normal.x);
+        this.vertices.add(normal.y);
+        this.vertices.add(normal.z);
     }
 
     public void render(ShaderProgram shader){
