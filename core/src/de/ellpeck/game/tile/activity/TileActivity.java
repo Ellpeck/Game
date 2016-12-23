@@ -20,11 +20,18 @@ public class TileActivity implements Disposable{
 
     }
 
+    public void onRemove(){
+
+    }
+
+    public void onAdded(){
+
+    }
+
     @Override
     public void dispose(){
 
     }
 
     //TODO Add TileEntity-like updating and saving/loading system (using Darkhax' storage API?)
-
 }

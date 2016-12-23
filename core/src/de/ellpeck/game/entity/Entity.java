@@ -9,6 +9,11 @@ public class Entity implements Disposable{
     public double x;
     public double y;
     public double z;
+    public double height = 1;
+
+    public double motionX;
+    public double motionY;
+    public double motionZ;
 
     public int chunkX;
     public int chunkZ;
@@ -21,7 +26,16 @@ public class Entity implements Disposable{
     }
 
     public void update(){
+        this.doCollision();
+        this.applyMotion();
+    }
 
+    protected void applyMotion(){
+        //TODO
+    }
+
+    protected void doCollision(){
+        //TODO
     }
 
     public boolean shouldRemove(){

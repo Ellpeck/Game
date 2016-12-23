@@ -12,4 +12,13 @@ public final class MathUtil{
     public static double distance(double x1, double y1, double z1, double x2, double y2, double z2){
         return Math.sqrt(distanceSq(x1, y1, z1, x2, y2, z2));
     }
+
+    public static int round(double d){
+        if(d > 0.5){
+            return (int)d+1;
+        }
+        else{
+            return (int)d;
+        }
+    }
 }

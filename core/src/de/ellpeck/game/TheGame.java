@@ -16,7 +16,7 @@ import de.ellpeck.game.world.World;
 public class TheGame implements ApplicationListener{
 
     private static TheGame instance;
-    public static final Logger LOGGER = new Logger("TheGame", Logger.NONE);
+    public static final Logger LOGGER = new Logger("TheGame", Logger.DEBUG);
 
     //TODO Move all of this out to some sort of client handler
     private PerspectiveCamera camera;
@@ -43,6 +43,7 @@ public class TheGame implements ApplicationListener{
 
         this.camera = new PerspectiveCamera();
         this.camera.near = 0.1F;
+        this.camera.far = 1000F;
         this.camera.position.set(5, 25, 10);
         this.viewport = new ScalingViewport(Scaling.fill, 1, 1, this.camera);
 
@@ -73,7 +74,7 @@ public class TheGame implements ApplicationListener{
     }
 
     private void doRender(){
-        Gdx.gl.glClearColor(1F, 0F, 1F, 1F);
+        Gdx.gl.glClearColor(0F, 0F, 0F, 1F);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);

@@ -1,4 +1,4 @@
-package de.ellpeck.game.world;
+package de.ellpeck.game.world.chunk;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -12,9 +12,6 @@ import com.badlogic.gdx.utils.FloatArray;
 import de.ellpeck.game.TheGame;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.util.Direction;
-import de.ellpeck.game.world.chunk.Chunk;
-
-import java.util.List;
 
 public class ChunkMesh implements Disposable{
 

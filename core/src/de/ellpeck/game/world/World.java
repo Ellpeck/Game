@@ -33,6 +33,16 @@ public class World implements Disposable{
         }
     }
 
+    public TileActivity getTileActivity(int x, int y, int z, boolean forceLoad){
+        Chunk chunk = this.getChunkFromWorldCoords(x, z, forceLoad);
+        if(chunk != null){
+            return chunk.getTileActivity(CoordUtil.relativeToIncludingChunk(x), y, CoordUtil.relativeToIncludingChunk(z));
+        }
+        else{
+            return null;
+        }
+    }
+
     public boolean addEntity(Entity entity, boolean forceLoad){
         Chunk chunk = this.getChunkFromWorldCoords((int)entity.x, (int)entity.z, forceLoad);
         if(chunk != null){
@@ -109,7 +119,7 @@ public class World implements Disposable{
                 for(int z = -MAX_CHUNK_VIEW; z <= MAX_CHUNK_VIEW; z++){
                     Chunk chunk = this.getChunkFromChunkCoords(player.chunkX+x, player.chunkZ+z, true);
                     if(chunk != null){
-                        chunk.loadedByPlayer = true;
+                        chunk.loadedByPlayerTimer = 30;
                     }
                 }
             }
@@ -118,7 +128,7 @@ public class World implements Disposable{
         for(long id : this.loadedChunks.keySet()){
             Chunk chunk = this.loadedChunks.get(id);
 
-            if(!chunk.loadedByPlayer){
+            if(chunk.loadedByPlayerTimer <= 0){
                 this.loadedChunks.remove(id);
                 chunk.onUnload();
 
@@ -128,7 +138,7 @@ public class World implements Disposable{
             }
             else{
                 chunk.update();
-                chunk.loadedByPlayer = false;
+                chunk.loadedByPlayerTimer--;
             }
         }
     }

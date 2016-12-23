@@ -11,14 +11,12 @@ import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.CoordUtil;
 import de.ellpeck.game.util.Direction;
-import de.ellpeck.game.world.ChunkMesh;
 import de.ellpeck.game.world.TileLayer;
 import de.ellpeck.game.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO Make players not only load the chunk they are in but also the ones around them (and unload ones out of reach)
 public class Chunk implements Disposable{
 
     public static final int SIZE = 16;
@@ -32,7 +30,7 @@ public class Chunk implements Disposable{
     public final int x;
     public final int z;
 
-    public boolean loadedByPlayer;
+    public int loadedByPlayerTimer;
     public boolean shouldReformMesh;
     public final ChunkMesh mesh = new ChunkMesh(this);
 
@@ -40,14 +38,27 @@ public class Chunk implements Disposable{
         this.world = world;
         this.x = x;
         this.z = z;
-
-        for(int i = 0; i < this.tileLayers.length; i++){
-            this.tileLayers[i] = new TileLayer(this, i);
-        }
     }
 
     public void addTileActivity(TileActivity activity){
+        TileActivity there = this.getTileActivity(activity.x, activity.y, activity.z);
+        if(there != null){
+            this.tileActivities.remove(there);
+            there.onRemove();
+            there.dispose();
+        }
+
         this.tileActivities.add(activity);
+        activity.onAdded();
+    }
+
+    public TileActivity getTileActivity(int x, int y, int z){
+        for(TileActivity activity : this.tileActivities){
+            if(activity.x == x && activity.y == y && activity.z == z){
+                return activity;
+            }
+        }
+        return null;
     }
 
     public void addEntity(Entity entity){
@@ -102,7 +113,14 @@ public class Chunk implements Disposable{
 
     private TileLayer getTileLayer(int layer){
         if(layer >= 0 && layer < this.tileLayers.length){
-            return this.tileLayers[layer];
+            TileLayer theLayer = this.tileLayers[layer];
+
+            if(theLayer == null){
+                theLayer = new TileLayer(this, layer);
+                this.tileLayers[layer] = theLayer;
+            }
+
+            return theLayer;
         }
         else{
             return null;
@@ -162,6 +180,7 @@ public class Chunk implements Disposable{
 
                 if(removeFromWorld){
                     entity.onRemove();
+                    entity.dispose();
 
                     if(entity instanceof EntityPlayer){
                         this.world.players.remove(entity);
@@ -178,6 +197,9 @@ public class Chunk implements Disposable{
             if(activity.shouldRemove()){
                 this.tileActivities.remove(i);
                 i--;
+
+                activity.onRemove();
+                activity.dispose();
             }
             else{
                 activity.update();
@@ -193,6 +215,7 @@ public class Chunk implements Disposable{
             activity.onUnload();
         }
 
+        this.reformMeshesAround(0, 0);
         this.dispose();
     }
 

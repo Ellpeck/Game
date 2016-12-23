@@ -4,12 +4,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import de.ellpeck.game.Registry;
 import de.ellpeck.game.tile.activity.TileActivity;
+import de.ellpeck.game.util.AABB;
 import de.ellpeck.game.util.Direction;
 import de.ellpeck.game.world.World;
 
 public class Tile implements Disposable{
 
     public final String name;
+    private final AABB boundingBox = new AABB(0F, 0F, 0F, 1F, 1F, 1F);
 
     public Tile(String name){
         this.name = name;
@@ -43,6 +45,10 @@ public class Tile implements Disposable{
 
     public Vector2 getTextureCoordsForSide(World world, int x, int y, int z, Direction face){
         return Vector2.Zero;
+    }
+
+    public AABB getCollisionBox(World world, int x, int y, int z, int meta){
+        return this.boundingBox;
     }
 
     @Override
