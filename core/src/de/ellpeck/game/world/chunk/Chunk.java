@@ -227,7 +227,7 @@ public class Chunk implements Disposable{
         for(int x = 0; x < SIZE; x++){
             for(int z = 0; z < SIZE; z++){
                 for(int y = 0; y < 20; y++){
-                    this.setTile(x, y, z, Registry.TILE_ROCK, 0);
+                    this.setTile(x, y, z, Math.random() >= 0.75 ? Registry.TILE_DIRT : Registry.TILE_ROCK, 0);
                 }
             }
         }

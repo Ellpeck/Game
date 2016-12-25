@@ -61,12 +61,11 @@ public class PlayerController implements InputProcessor{
         float deltaX = -Gdx.input.getDeltaX()*DEGREES_PER_PIXEL;
         float deltaY = -Gdx.input.getDeltaY()*DEGREES_PER_PIXEL;
 
-        this.player.yaw = deltaX;
-        this.player.pitch = deltaY;
-
         this.camera.direction.rotate(this.camera.up, deltaX);
         this.temp.set(this.camera.direction).crs(this.camera.up).nor();
         this.camera.direction.rotate(this.temp, deltaY);
+
+
 
         return true;
     }
@@ -100,7 +99,7 @@ public class PlayerController implements InputProcessor{
         }
 
         if(strafe != 0 || forward != 0){
-            this.player.moveRelative(strafe, forward, 0.1);
+            this.player.moveRelative(strafe, forward);
         }
 
         this.camera.position.set((float)this.player.x, (float)this.player.y, (float)this.player.z);
