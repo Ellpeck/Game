@@ -48,7 +48,7 @@ public class Tile implements Disposable{
     }
 
     public AABB getCollisionBox(World world, int x, int y, int z, int meta){
-        return this.boundingBox;
+        return this.boundingBox.copy().offset(x, y, z);
     }
 
     @Override

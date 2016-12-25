@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.ellpeck.game.entity.EntityPlayer;
+import de.ellpeck.game.entity.player.EntityPlayer;
+import de.ellpeck.game.entity.player.PlayerController;
 import de.ellpeck.game.world.World;
 
 public class TheGame implements ApplicationListener{
@@ -20,13 +22,16 @@ public class TheGame implements ApplicationListener{
 
     //TODO Move all of this out to some sort of client handler
     private PerspectiveCamera camera;
+    private PlayerController playerController;
     private Viewport viewport;
     private ShaderProgram shader;
     //TODO Move this out to some world handler or something
     private World world;
 
-    private static final float TIME_STEP = 1F/10F;
+    private static final float TIME_STEP = 1F/20F;
     private double accumulator;
+    private long ups;
+    private long lastMillis;
 
     public TheGame(){
         if(instance == null){
@@ -59,7 +64,12 @@ public class TheGame implements ApplicationListener{
         }
 
         this.world = new World();
-        this.world.addEntity(new EntityPlayer(this.world, 0, 30, 0, this.camera), true);
+
+        EntityPlayer player = new EntityPlayer(this.world, 0, 30, 0);
+        this.world.addEntity(player, true);
+
+        this.playerController = new PlayerController(player, this.camera);
+        Gdx.input.setInputProcessor(this.playerController);
     }
 
     @Override
@@ -71,6 +81,8 @@ public class TheGame implements ApplicationListener{
     public void render(){
         this.doUpdate();
         this.doRender();
+
+        Gdx.graphics.setTitle("FPS: "+Gdx.graphics.getFramesPerSecond()+", UPS: "+this.ups);
     }
 
     private void doRender(){
@@ -103,13 +115,19 @@ public class TheGame implements ApplicationListener{
         while(this.accumulator >= TIME_STEP){
             this.accumulator -= TIME_STEP;
 
+            long millis = TimeUtils.millis();
+            long timeSince = millis-this.lastMillis;
+            this.lastMillis = millis;
+            if(timeSince > 0){
+                this.ups = 1000/timeSince;
+            }
+
+            //Update with fixed step
             this.world.update();
         }
 
-        //TODO Move this to a better controller thing
-        for(EntityPlayer player : this.world.players){
-            player.controller.update();
-        }
+        //Update with gdx delta
+        this.playerController.update();
     }
 
     @Override

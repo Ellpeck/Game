@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 import de.ellpeck.game.TheGame;
 import de.ellpeck.game.entity.Entity;
-import de.ellpeck.game.entity.EntityPlayer;
+import de.ellpeck.game.entity.player.EntityPlayer;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
+import de.ellpeck.game.util.AABB;
 import de.ellpeck.game.util.CoordUtil;
+import de.ellpeck.game.util.MathUtil;
 import de.ellpeck.game.world.chunk.Chunk;
 
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class World implements Disposable{
     }
 
     public boolean addEntity(Entity entity, boolean forceLoad){
-        Chunk chunk = this.getChunkFromWorldCoords((int)entity.x, (int)entity.z, forceLoad);
+        Chunk chunk = this.getChunkFromWorldCoords(MathUtil.floor(entity.x), MathUtil.floor(entity.z), forceLoad);
         if(chunk != null){
             chunk.addEntity(entity);
 
@@ -155,6 +157,26 @@ public class World implements Disposable{
 
     private void saveChunkToDisk(Chunk chunk){
         //TODO Save chunk
+    }
+
+    public List<AABB> getCollisionBoxes(AABB area, boolean forceLoad){
+        List<AABB> list = new ArrayList<>();
+
+        for(int x = MathUtil.floor(area.x1); x <= MathUtil.ceil(area.x2); x++){
+            for(int y = MathUtil.floor(area.y1); y <= MathUtil.ceil(area.y2); y++){
+                for(int z = MathUtil.floor(area.z1); z <= MathUtil.ceil(area.z2); z++){
+                    Tile tile = this.getTile(x, y, z, forceLoad);
+                    if(tile != null){
+                        AABB collision = tile.getCollisionBox(this, x, y, z, this.getMetadata(x, y, z, forceLoad));
+                        if(!collision.isEmpty()){
+                            list.add(collision);
+                        }
+                    }
+                }
+            }
+        }
+
+        return list;
     }
 
     @Override

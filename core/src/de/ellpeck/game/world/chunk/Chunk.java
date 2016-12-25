@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import de.ellpeck.game.Registry;
 import de.ellpeck.game.TheGame;
 import de.ellpeck.game.entity.Entity;
-import de.ellpeck.game.entity.EntityPlayer;
+import de.ellpeck.game.entity.player.EntityPlayer;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.CoordUtil;

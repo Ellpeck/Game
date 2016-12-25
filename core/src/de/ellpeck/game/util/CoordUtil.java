@@ -5,7 +5,7 @@ import de.ellpeck.game.world.chunk.Chunk;
 public final class CoordUtil{
 
     public static int coordsOfIncludingChunk(double pos){
-        return (int)Math.floor(pos/(double)Chunk.SIZE);
+        return MathUtil.floor(pos/(double)Chunk.SIZE);
     }
 
     public static int relativeToIncludingChunk(int pos){
