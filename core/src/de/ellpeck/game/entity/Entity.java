@@ -54,39 +54,41 @@ public class Entity implements Disposable{
     }
 
     public void move(double motionX, double motionY, double motionZ){
-        double motionYBefore = motionY;
+        if(motionX != 0 || motionY != 0 || motionZ != 0){
+            double motionYBefore = motionY;
 
-        AABB ownBox = this.getBoundingBox();
-        List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), false);
+            AABB ownBox = this.getBoundingBox();
+            List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), false);
 
-        if(!boxes.isEmpty()){
-            AABB ownBoxOffset = ownBox.copy().offset(this.x, this.y, this.z);
+            if(!boxes.isEmpty()){
+                AABB ownBoxOffset = ownBox.copy().offset(this.x, this.y, this.z);
 
-            for(AABB box : boxes){
-                if(motionX != 0){
-                    motionX = box.calculateDistanceX(ownBoxOffset, motionX);
-                }
+                for(AABB box : boxes){
+                    if(motionX != 0){
+                        motionX = box.calculateDistanceX(ownBoxOffset, motionX);
+                    }
 
-                if(motionY != 0){
-                    motionY = box.calculateDistanceY(ownBoxOffset, motionY);
-                }
+                    if(motionY != 0){
+                        motionY = box.calculateDistanceY(ownBoxOffset, motionY);
+                    }
 
-                if(motionZ != 0){
-                    motionZ = box.calculateDistanceZ(ownBoxOffset, motionZ);
+                    if(motionZ != 0){
+                        motionZ = box.calculateDistanceZ(ownBoxOffset, motionZ);
+                    }
                 }
             }
-        }
 
-        if(motionY != motionYBefore){
-            this.onGround = motionYBefore < 0;
-        }
-        else if(motionYBefore > 0){
-            this.onGround = false;
-        }
+            if(motionY != motionYBefore){
+                this.onGround = motionYBefore < 0;
+            }
+            else if(motionYBefore > 0){
+                this.onGround = false;
+            }
 
-        this.x += motionX;
-        this.y += motionY;
-        this.z += motionZ;
+            this.x += motionX;
+            this.y += motionY;
+            this.z += motionZ;
+        }
     }
 
     public boolean shouldRemove(){
@@ -110,7 +112,19 @@ public class Entity implements Disposable{
 
     }
 
-    public void moveRelative(double strafe, double forward){
+    public void moveRelative(double strafe, double forward, double friction){
+        if(strafe != 0 || forward != 0){
+            double length = friction/Math.sqrt(strafe*strafe+forward*forward);
 
+            strafe = strafe*length;
+            forward = forward*length;
+
+            double yaw = this.yaw%360;
+            double sin = Math.sin(yaw*0.01);
+            double cos = Math.cos(yaw*0.01);
+
+            this.motionX += strafe*cos-forward*sin;
+            this.motionZ += forward*cos+strafe*sin;
+        }
     }
 }

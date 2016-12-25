@@ -65,8 +65,6 @@ public class PlayerController implements InputProcessor{
         this.temp.set(this.camera.direction).crs(this.camera.up).nor();
         this.camera.direction.rotate(this.temp, deltaY);
 
-
-
         return true;
     }
 
@@ -99,7 +97,7 @@ public class PlayerController implements InputProcessor{
         }
 
         if(strafe != 0 || forward != 0){
-            this.player.moveRelative(strafe, forward);
+            this.player.moveRelative(strafe, forward, 0.15);
         }
 
         this.camera.position.set((float)this.player.x, (float)this.player.y, (float)this.player.z);
