@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Matrix4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class PlayerController implements InputProcessor{
     private final PerspectiveCamera camera;
 
     private final List<Integer> keys = new ArrayList<>();
-    private final Vector3 temp = new Vector3();
+    private final Matrix4 lookDirectionMatrix = new Matrix4();
 
     private static final int STRAFE_LEFT = Keys.A;
     private static final int STRAFE_RIGHT = Keys.D;
@@ -61,9 +61,10 @@ public class PlayerController implements InputProcessor{
         float deltaX = -Gdx.input.getDeltaX()*DEGREES_PER_PIXEL;
         float deltaY = -Gdx.input.getDeltaY()*DEGREES_PER_PIXEL;
 
-        this.camera.direction.rotate(this.camera.up, deltaX);
-        this.temp.set(this.camera.direction).crs(this.camera.up).nor();
-        this.camera.direction.rotate(this.temp, deltaY);
+        this.player.yaw -= deltaX;
+        this.player.pitch += deltaY;
+
+        this.lookDirectionMatrix.setFromEulerAngles((float)-this.player.yaw%360, (float)this.player.pitch%360, 0F);
 
         return true;
     }
@@ -101,6 +102,11 @@ public class PlayerController implements InputProcessor{
         }
 
         this.camera.position.set((float)this.player.x, (float)this.player.y, (float)this.player.z);
+
+        this.camera.direction.set(0F, 0F, -1F);
+        this.camera.up.set(0F, 1F, 0F);
+        this.camera.rotate(this.lookDirectionMatrix);
+
         this.camera.update();
     }
 }

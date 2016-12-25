@@ -18,7 +18,7 @@ public class Entity implements Disposable{
     public boolean onGround;
     public boolean isFlying;
 
-    private final AABB boundingBox = new AABB(-1, -2, -1, 1, 1, 1);
+    private final AABB boundingBox = new AABB(-0.5, -2, -0.5, 0.5, 1, 0.5);
 
     public double motionX;
     public double motionY;
@@ -119,9 +119,9 @@ public class Entity implements Disposable{
             strafe = strafe*length;
             forward = forward*length;
 
-            double yaw = this.yaw%360;
-            double sin = Math.sin(yaw*0.01);
-            double cos = Math.cos(yaw*0.01);
+            double yaw = Math.toRadians(this.yaw%360);
+            double sin = Math.sin(yaw);
+            double cos = Math.cos(yaw);
 
             this.motionX += strafe*cos-forward*sin;
             this.motionZ += forward*cos+strafe*sin;
