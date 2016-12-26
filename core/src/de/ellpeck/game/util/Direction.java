@@ -22,4 +22,21 @@ public enum Direction{
         this.yOffset = yOffset;
         this.zOffset = zOffset;
     }
+
+    public Direction getOpposite(){
+        switch(this){
+            case UP:
+                return DOWN;
+            case DOWN:
+                return UP;
+            case NORTH:
+                return SOUTH;
+            case EAST:
+                return WEST;
+            case SOUTH:
+                return NORTH;
+            default:
+                return EAST;
+        }
+    }
 }

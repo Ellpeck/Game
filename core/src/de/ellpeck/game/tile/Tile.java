@@ -34,13 +34,17 @@ public class Tile implements Disposable{
 
     }
 
-    public boolean doesRender(){
+    public boolean doesRender(World world, int x, int y, int z){
         return true;
+    }
+
+    public boolean isFaceTransparent(World world, int x, int y, int z, Direction face){
+        return false;
     }
 
     public boolean shouldShowFace(World world, int x, int y, int z, Direction face){
         Tile tileAdj = world.getTile(x+face.xOffset, y+face.yOffset, z+face.zOffset, false);
-        return tileAdj == null;
+        return tileAdj == null || tileAdj.isFaceTransparent(world, x+face.xOffset, y+face.yOffset, z+face.zOffset, face.getOpposite());
     }
 
     public Vector2 getTextureCoordsForSide(World world, int x, int y, int z, Direction face){

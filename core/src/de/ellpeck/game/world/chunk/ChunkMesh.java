@@ -63,7 +63,7 @@ public class ChunkMesh implements Disposable{
             for(int z = 0; z < Chunk.SIZE; z++){
                 for(int y = 0; y < Chunk.HEIGHT; y++){
                     Tile tile = this.chunk.getTile(x, y, z);
-                    if(tile != null && tile.doesRender()){
+                    if(tile != null && tile.doesRender(this.chunk.world, x, y, z)){
                         this.addTile(tile, this.chunk.x*Chunk.SIZE+x, y, this.chunk.z*Chunk.SIZE+z, CUBE_SIZE);
                     }
                 }

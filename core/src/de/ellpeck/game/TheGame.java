@@ -66,6 +66,7 @@ public class TheGame implements ApplicationListener{
         this.world = new World();
         this.world.setTile(0, 21, 5, Registry.TILE_LOG, 2, true);
         this.world.setTile(2, 21, 5, Registry.TILE_LOG, 1, true);
+        this.world.setTile(2, 20, 8, Registry.TILE_LEAVES, 0, true);
 
         EntityPlayer player = new EntityPlayer(this.world, 0, 30, 0);
         this.world.addEntity(player, true);

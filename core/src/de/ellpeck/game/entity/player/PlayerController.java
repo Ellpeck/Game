@@ -17,7 +17,10 @@ public class PlayerController implements InputProcessor{
 
     private final List<Integer> keys = new ArrayList<>();
     private final Matrix4 lookDirectionMatrix = new Matrix4();
-    private final Vector3 temp = new Vector3();
+    private final Vector3 tempVec = new Vector3();
+    private final Matrix4 tempMat = new Matrix4();
+
+    private boolean isMouseCaught;
 
     private static final int STRAFE_LEFT = Keys.A;
     private static final int STRAFE_RIGHT = Keys.D;
@@ -34,6 +37,12 @@ public class PlayerController implements InputProcessor{
 
     @Override
     public boolean keyDown(int keycode){
+        if(keycode == Keys.ESCAPE){
+            this.isMouseCaught = !this.isMouseCaught;
+            Gdx.input.setCursorCatched(this.isMouseCaught);
+            return true;
+        }
+
         this.keys.add(keycode);
         return true;
     }
@@ -61,19 +70,22 @@ public class PlayerController implements InputProcessor{
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer){
-        float deltaX = -Gdx.input.getDeltaX()*DEGREES_PER_PIXEL;
-        float deltaY = -Gdx.input.getDeltaY()*DEGREES_PER_PIXEL;
-
-        this.player.yaw -= deltaX;
-        this.player.pitch += deltaY;
-
-        this.lookDirectionMatrix.setFromEulerAngles((float)-this.player.yaw%360, (float)this.player.pitch%360, 0F);
-
-        return true;
+        return this.mouseMoved(screenX, screenY);
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY){
+        if(this.isMouseCaught){
+            float deltaX = -Gdx.input.getDeltaX()*DEGREES_PER_PIXEL;
+            float deltaY = -Gdx.input.getDeltaY()*DEGREES_PER_PIXEL;
+
+            this.player.yaw -= deltaX;
+            this.player.pitch += deltaY;
+
+            this.lookDirectionMatrix.setFromEulerAngles((float)-this.player.yaw%360, (float)this.player.pitch%360, 0F);
+
+            return true;
+        }
         return false;
     }
 
@@ -108,11 +120,14 @@ public class PlayerController implements InputProcessor{
             this.player.moveRelative(strafe, forward, 0.15);
         }
 
-        this.camera.position.lerp(this.temp.set((float)this.player.x, (float)this.player.y, (float)this.player.z), 0.25F);
+        float lerpDelta = Gdx.graphics.getDeltaTime()*10;
+
+        this.camera.position.slerp(this.tempVec.set((float)this.player.x, (float)this.player.y, (float)this.player.z), lerpDelta);
 
         this.camera.direction.set(0F, 0F, -1F);
         this.camera.up.set(0F, 1F, 0F);
-        this.camera.rotate(this.lookDirectionMatrix);
+        //this.camera.rotate(this.tempMat.lerp(this.lookDirectionMatrix, lerpDelta));
+        this.camera.rotate(this.tempMat.set(this.lookDirectionMatrix));
 
         this.camera.update();
     }

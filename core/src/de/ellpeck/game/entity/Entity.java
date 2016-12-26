@@ -57,7 +57,7 @@ public class Entity implements Disposable{
             double motionYBefore = motionY;
 
             AABB ownBox = this.getBoundingBox();
-            List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), 1, false);
+            List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), false);
 
             if(!boxes.isEmpty()){
                 AABB ownBoxOffset = ownBox.copy().offset(this.x, this.y, this.z);

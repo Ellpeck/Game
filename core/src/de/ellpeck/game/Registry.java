@@ -2,6 +2,7 @@ package de.ellpeck.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import de.ellpeck.game.tile.Tile;
+import de.ellpeck.game.tile.TileLeaves;
 import de.ellpeck.game.tile.TileLog;
 import de.ellpeck.game.tile.TileSingleTextured;
 import de.ellpeck.game.tile.activity.TileActivity;
@@ -18,6 +19,7 @@ public final class Registry{
     public static final Tile TILE_GRASS = new TileSingleTextured("grass").setTextureCoords(1, 0).register();
     public static final Tile TILE_ROCK = new TileSingleTextured("rock").setTextureCoords(2, 0).register();
     public static final Tile TILE_LOG = new TileLog().register();
+    public static final Tile TILE_LEAVES = new TileLeaves().register();
 
     public static void init(){
 
