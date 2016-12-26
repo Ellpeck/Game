@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +17,13 @@ public class PlayerController implements InputProcessor{
 
     private final List<Integer> keys = new ArrayList<>();
     private final Matrix4 lookDirectionMatrix = new Matrix4();
+    private final Vector3 temp = new Vector3();
 
     private static final int STRAFE_LEFT = Keys.A;
     private static final int STRAFE_RIGHT = Keys.D;
     private static final int FORWARD = Keys.W;
     private static final int BACKWARD = Keys.S;
+    private static final int JUMP = Keys.SPACE;
 
     private static final float DEGREES_PER_PIXEL = 0.5F;
 
@@ -97,11 +100,15 @@ public class PlayerController implements InputProcessor{
             forward = 1;
         }
 
+        if(this.keys.contains(JUMP)){
+            this.player.jump();
+        }
+
         if(strafe != 0 || forward != 0){
             this.player.moveRelative(strafe, forward, 0.15);
         }
 
-        this.camera.position.set((float)this.player.x, (float)this.player.y, (float)this.player.z);
+        this.camera.position.lerp(this.temp.set((float)this.player.x, (float)this.player.y, (float)this.player.z), 0.25F);
 
         this.camera.direction.set(0F, 0F, -1F);
         this.camera.up.set(0F, 1F, 0F);

@@ -39,18 +39,17 @@ public class Entity implements Disposable{
     }
 
     protected void applyMotion(){
-        if(!this.onGround){
-            this.motionY -= 0.05;
-        }
-        else if(this.motionY < 0){
-            this.motionY = 0;
-        }
+        this.motionY -= 0.05;
 
         this.motionX *= 0.5;
         this.motionY *= 0.98;
         this.motionZ *= 0.5;
 
         this.move(this.motionX, this.motionY, this.motionZ);
+
+        if(this.onGround){
+            this.motionY = 0;
+        }
     }
 
     public void move(double motionX, double motionY, double motionZ){
@@ -58,7 +57,7 @@ public class Entity implements Disposable{
             double motionYBefore = motionY;
 
             AABB ownBox = this.getBoundingBox();
-            List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), false);
+            List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), 1, false);
 
             if(!boxes.isEmpty()){
                 AABB ownBoxOffset = ownBox.copy().offset(this.x, this.y, this.z);
@@ -78,12 +77,7 @@ public class Entity implements Disposable{
                 }
             }
 
-            if(motionY != motionYBefore){
-                this.onGround = motionYBefore < 0;
-            }
-            else if(motionYBefore > 0){
-                this.onGround = false;
-            }
+            this.onGround = motionY != motionYBefore && motionYBefore < 0;
 
             this.x += motionX;
             this.y += motionY;

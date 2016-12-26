@@ -159,12 +159,12 @@ public class World implements Disposable{
         //TODO Save chunk
     }
 
-    public List<AABB> getCollisionBoxes(AABB area, boolean forceLoad){
+    public List<AABB> getCollisionBoxes(AABB area, int expand, boolean forceLoad){
         List<AABB> list = new ArrayList<>();
 
-        for(int x = MathUtil.floor(area.x1); x <= MathUtil.floor(area.x2); x++){
-            for(int y = MathUtil.floor(area.y1); y <= MathUtil.floor(area.y2); y++){
-                for(int z = MathUtil.floor(area.z1); z <= MathUtil.floor(area.z2); z++){
+        for(int x = MathUtil.floor(area.x1)-expand; x <= MathUtil.floor(area.x2)+expand; x++){
+            for(int y = MathUtil.floor(area.y1)-expand; y <= MathUtil.floor(area.y2)+expand; y++){
+                for(int z = MathUtil.floor(area.z1)-expand; z <= MathUtil.floor(area.z2)+expand; z++){
                     Tile tile = this.getTile(x, y, z, forceLoad);
                     if(tile != null){
                         AABB collision = tile.getCollisionBox(this, x, y, z, this.getMetadata(x, y, z, forceLoad));
