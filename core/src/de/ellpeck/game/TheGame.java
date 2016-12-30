@@ -13,12 +13,16 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.ellpeck.game.entity.player.EntityPlayer;
 import de.ellpeck.game.entity.player.PlayerController;
+import de.ellpeck.game.gui.Gui;
+import de.ellpeck.game.gui.GuiHandler;
 import de.ellpeck.game.world.World;
 
 public class TheGame implements ApplicationListener{
 
     private static TheGame instance;
     public static final Logger LOGGER = new Logger("TheGame", Logger.DEBUG);
+
+    private GuiHandler guiHandler;
 
     //TODO Move all of this out to some sort of client handler
     private PerspectiveCamera camera;
@@ -71,13 +75,16 @@ public class TheGame implements ApplicationListener{
         EntityPlayer player = new EntityPlayer(this.world, 0, 30, 0);
         this.world.addEntity(player, true);
 
-        this.playerController = new PlayerController(player, this.camera);
+        this.guiHandler = new GuiHandler();
+
+        this.playerController = new PlayerController(player, this.camera, this.guiHandler);
         Gdx.input.setInputProcessor(this.playerController);
     }
 
     @Override
     public void resize(int width, int height){
         this.viewport.update(width, height);
+        this.guiHandler.onScreenResize(width, height);
     }
 
     @Override
@@ -109,6 +116,8 @@ public class TheGame implements ApplicationListener{
 
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+
+        this.guiHandler.render();
     }
 
     private void doUpdate(){
@@ -127,6 +136,7 @@ public class TheGame implements ApplicationListener{
 
             //Update with fixed step
             this.world.update();
+            this.guiHandler.update();
         }
 
         //Update with gdx delta
@@ -149,6 +159,7 @@ public class TheGame implements ApplicationListener{
 
         this.shader.dispose();
         this.world.dispose();
+        this.guiHandler.dispose();
         Registry.dispose();
     }
 

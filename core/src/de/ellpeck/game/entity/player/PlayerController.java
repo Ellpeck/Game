@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import de.ellpeck.game.gui.GuiHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class PlayerController implements InputProcessor{
 
     private final EntityPlayer player;
     private final PerspectiveCamera camera;
+    private final GuiHandler guiHandler;
 
     private final List<Integer> keys = new ArrayList<>();
     private final Matrix4 lookDirectionMatrix = new Matrix4();
@@ -30,9 +32,10 @@ public class PlayerController implements InputProcessor{
 
     private static final float DEGREES_PER_PIXEL = 0.5F;
 
-    public PlayerController(EntityPlayer player, PerspectiveCamera camera){
+    public PlayerController(EntityPlayer player, PerspectiveCamera camera, GuiHandler guiHandler){
         this.player = player;
         this.camera = camera;
+        this.guiHandler = guiHandler;
     }
 
     @Override
@@ -44,38 +47,45 @@ public class PlayerController implements InputProcessor{
         }
 
         this.keys.add(keycode);
+        this.guiHandler.keyDown(keycode);
+
         return true;
     }
 
     @Override
     public boolean keyUp(int keycode){
         this.keys.remove((Integer)keycode);
+        this.guiHandler.keyUp(keycode);
         return true;
     }
 
     @Override
     public boolean keyTyped(char character){
-        return false;
+        return this.guiHandler.keyTyped(character);
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button){
-        return false;
+        return this.guiHandler.touchDown(screenX, screenY, pointer, button);
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button){
-        return false;
+        return this.guiHandler.touchUp(screenX, screenY, pointer, button);
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer){
-        return this.mouseMoved(screenX, screenY);
+        return this.doLooking() || this.guiHandler.touchDragged(screenX, screenY, pointer);
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY){
-        if(this.isMouseCaught){
+        return this.doLooking() || this.guiHandler.mouseMoved(screenX, screenY);
+    }
+
+    private boolean doLooking(){
+        if(this.isMouseCaught && !this.guiHandler.isMovementStopped){
             float deltaX = -Gdx.input.getDeltaX()*DEGREES_PER_PIXEL;
             float deltaY = -Gdx.input.getDeltaY()*DEGREES_PER_PIXEL;
 
@@ -91,10 +101,16 @@ public class PlayerController implements InputProcessor{
 
     @Override
     public boolean scrolled(int amount){
-        return false;
+        return this.guiHandler.scrolled(amount);
     }
 
     public void update(){
+        if(!this.guiHandler.isMovementStopped){
+            this.doMovement();
+        }
+    }
+
+    private void doMovement(){
         double strafe = 0;
         double forward = 0;
 

@@ -16,7 +16,6 @@ public class Entity implements Disposable{
     public double pitch;
     public double yaw;
     public boolean onGround;
-    public boolean isFlying;
 
     private final AABB boundingBox = new AABB(-0.5, -2, -0.5, 0.5, 1, 0.5);
 
@@ -52,6 +51,7 @@ public class Entity implements Disposable{
         }
     }
 
+    //TODO Maybe do the collision check for all sides independent of one another to avoid edge clipping?
     public void move(double motionX, double motionY, double motionZ){
         if(motionX != 0 || motionY != 0 || motionZ != 0){
             double motionYBefore = motionY;
