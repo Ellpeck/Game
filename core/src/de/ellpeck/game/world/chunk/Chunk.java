@@ -11,20 +11,28 @@ import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.CoordUtil;
 import de.ellpeck.game.util.Direction;
+import de.ellpeck.game.util.pos.Pos3;
 import de.ellpeck.game.world.TileLayer;
 import de.ellpeck.game.world.World;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chunk implements Disposable{
 
     public static final int SIZE = 16;
     public static final int HEIGHT = 64;
 
+    private final Pos3 tempTileActivityGetter = Pos3.zero();
+
     private final TileLayer[] tileLayers = new TileLayer[HEIGHT];
     private final List<Entity> entities = new ArrayList<>();
-    private final List<TileActivity> tileActivities = new ArrayList<>();
+    private final Map<Pos3, TileActivity> tileActivities = new HashMap<>();
+
+    private final Map<Entity, Boolean> entitiesForRemoval = new HashMap<>();
+    private final Map<Pos3, TileActivity> tileActivitiesForRemoval = new HashMap<>();
 
     public final World world;
     public final int x;
@@ -43,22 +51,17 @@ public class Chunk implements Disposable{
     public void addTileActivity(TileActivity activity){
         TileActivity there = this.getTileActivity(activity.x, activity.y, activity.z);
         if(there != null){
-            this.tileActivities.remove(there);
+            this.tileActivities.remove(this.tempTileActivityGetter.set(activity.x, activity.y, activity.z));
             there.onRemove();
             there.dispose();
         }
 
-        this.tileActivities.add(activity);
+        this.tileActivities.put(new Pos3(activity.x, activity.y, activity.z), activity);
         activity.onAdded();
     }
 
     public TileActivity getTileActivity(int x, int y, int z){
-        for(TileActivity activity : this.tileActivities){
-            if(activity.x == x && activity.y == y && activity.z == z){
-                return activity;
-            }
-        }
-        return null;
+        return this.tileActivities.get(this.tempTileActivityGetter.set(x, y, z));
     }
 
     public void addEntity(Entity entity){
@@ -146,9 +149,7 @@ public class Chunk implements Disposable{
             this.shouldReformMesh = false;
         }
 
-        for(int i = 0; i < this.entities.size(); i++){
-            Entity entity = this.entities.get(i);
-
+        for(Entity entity : this.entities){
             boolean removeFromWorld = entity.shouldRemove();
             boolean removeFromChunk = removeFromWorld;
 
@@ -173,12 +174,29 @@ public class Chunk implements Disposable{
             }
 
             if(removeFromChunk){
+                this.entitiesForRemoval.put(entity, removeFromWorld);
+            }
+        }
+
+        for(Map.Entry<Pos3, TileActivity> entry : this.tileActivities.entrySet()){
+            TileActivity activity = entry.getValue();
+
+            if(activity.shouldRemove()){
+                this.tileActivitiesForRemoval.put(entry.getKey(), activity);
+            }
+            else{
+                activity.update();
+            }
+        }
+
+        if(!this.entitiesForRemoval.isEmpty()){
+            for(Map.Entry<Entity, Boolean> entry : this.entitiesForRemoval.entrySet()){
+                Entity entity = entry.getKey();
+                this.entities.remove(entity);
+
                 TheGame.LOGGER.debug("Removed entity "+entity+" from chunk at "+this.x+", "+this.z+".");
 
-                this.entities.remove(i);
-                i--;
-
-                if(removeFromWorld){
+                if(entry.getValue()){
                     entity.onRemove();
                     entity.dispose();
 
@@ -188,22 +206,24 @@ public class Chunk implements Disposable{
 
                     TheGame.LOGGER.debug("Removed entity "+entity+" from world entirely!");
                 }
+
             }
+
+            TheGame.LOGGER.debug("Removed "+this.entitiesForRemoval.size()+" entities from chunk at "+this.x+", "+this.z+".");
+            this.entitiesForRemoval.clear();
         }
 
-        for(int i = 0; i < this.tileActivities.size(); i++){
-            TileActivity activity = this.tileActivities.get(i);
+        if(!this.tileActivitiesForRemoval.isEmpty()){
+            for(Map.Entry<Pos3, TileActivity> entry : this.tileActivitiesForRemoval.entrySet()){
+                this.tileActivities.remove(entry.getKey());
 
-            if(activity.shouldRemove()){
-                this.tileActivities.remove(i);
-                i--;
-
+                TileActivity activity = entry.getValue();
                 activity.onRemove();
                 activity.dispose();
             }
-            else{
-                activity.update();
-            }
+
+            TheGame.LOGGER.debug("Removed "+this.entitiesForRemoval.size()+" tile activities from chunk at "+this.x+", "+this.z+".");
+            this.tileActivitiesForRemoval.clear();
         }
     }
 
@@ -211,7 +231,7 @@ public class Chunk implements Disposable{
         for(Entity entity : this.entities){
             entity.onUnload();
         }
-        for(TileActivity activity : this.tileActivities){
+        for(TileActivity activity : this.tileActivities.values()){
             activity.onUnload();
         }
 
@@ -240,7 +260,7 @@ public class Chunk implements Disposable{
         for(Entity entity : this.entities){
             entity.dispose();
         }
-        for(TileActivity activity : this.tileActivities){
+        for(TileActivity activity : this.tileActivities.values()){
             activity.dispose();
         }
     }

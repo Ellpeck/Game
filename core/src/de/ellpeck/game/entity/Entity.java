@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Entity implements Disposable{
 
+    private final AABB tempCollisionCalc = AABB.empty();
+
     public World world;
     public double x;
     public double y;
@@ -15,9 +17,12 @@ public class Entity implements Disposable{
 
     public double pitch;
     public double yaw;
-    public boolean onGround;
 
-    private final AABB boundingBox = new AABB(-0.5, -2, -0.5, 0.5, 1, 0.5);
+    public boolean onGround;
+    public boolean collidedHor;
+    public boolean collidedVert;
+
+    private final AABB boundingBox = new AABB(-0.4, 0, -0.4, 0.4, 1.8, 0.4);
 
     public double motionX;
     public double motionY;
@@ -51,37 +56,75 @@ public class Entity implements Disposable{
         }
     }
 
-    //TODO Maybe do the collision check for all sides independent of one another to avoid edge clipping?
     public void move(double motionX, double motionY, double motionZ){
         if(motionX != 0 || motionY != 0 || motionZ != 0){
+            double motionXBefore = motionX;
             double motionYBefore = motionY;
+            double motionZBefore = motionZ;
 
             AABB ownBox = this.getBoundingBox();
-            List<AABB> boxes = this.world.getCollisionBoxes(ownBox.copy().offset(this.x+motionX, this.y+motionY, this.z+motionZ), false);
+            if(!ownBox.isEmpty()){
+                AABB searchBox = this.tempCollisionCalc.set(ownBox).offset(this.x+motionX, this.y+motionY, this.z+motionZ);
+                List<AABB> boxes = this.world.getCollisionBoxes(searchBox, false);
 
-            if(!boxes.isEmpty()){
-                AABB ownBoxOffset = ownBox.copy().offset(this.x, this.y, this.z);
-
-                for(AABB box : boxes){
-                    if(motionX != 0){
-                        motionX = box.calculateDistanceX(ownBoxOffset, motionX);
+                if(motionY != 0){
+                    if(!boxes.isEmpty()){
+                        AABB yBox = this.tempCollisionCalc.set(ownBox).offset(this.x, this.y, this.z);
+                        for(AABB box : boxes){
+                            if(motionY != 0){
+                                if(!box.isEmpty()){
+                                    motionY = box.getCollisionMotionY(yBox, motionY);
+                                }
+                            }
+                            else{
+                                break;
+                            }
+                        }
                     }
 
-                    if(motionY != 0){
-                        motionY = box.calculateDistanceY(ownBoxOffset, motionY);
+                    this.y += motionY;
+                }
+
+                if(motionX != 0){
+                    if(!boxes.isEmpty()){
+                        AABB xBox = this.tempCollisionCalc.set(ownBox).offset(this.x, this.y, this.z);
+                        for(AABB box : boxes){
+                            if(motionX != 0){
+                                if(!box.isEmpty()){
+                                    motionX = box.getCollisionMotionX(xBox, motionX);
+                                }
+                            }
+                            else{
+                                break;
+                            }
+                        }
                     }
 
-                    if(motionZ != 0){
-                        motionZ = box.calculateDistanceZ(ownBoxOffset, motionZ);
+                    this.x += motionX;
+                }
+
+                if(motionZ != 0){
+                    if(!boxes.isEmpty()){
+                        AABB zBox = this.tempCollisionCalc.set(ownBox).offset(this.x, this.y, this.z);
+                        for(AABB box : boxes){
+                            if(motionZ != 0){
+                                if(!box.isEmpty()){
+                                    motionZ = box.getCollisionMotionZ(zBox, motionZ);
+                                }
+                            }
+                            else{
+                                break;
+                            }
+                        }
                     }
+
+                    this.z += motionZ;
                 }
             }
 
-            this.onGround = motionY != motionYBefore && motionYBefore < 0;
-
-            this.x += motionX;
-            this.y += motionY;
-            this.z += motionZ;
+            this.collidedHor = motionX != motionXBefore || motionZ != motionZBefore;
+            this.collidedVert = motionY != motionYBefore;
+            this.onGround = this.collidedVert && motionYBefore < 0;
         }
     }
 

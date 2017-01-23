@@ -12,6 +12,8 @@ public class GuiHandler implements Disposable{
     private final SpriteBatch batch = new SpriteBatch();
 
     private final List<Gui> activeGuis = new ArrayList<>();
+    private final List<Gui> guisToClose = new ArrayList<>();
+
     public boolean isMovementStopped;
 
     public void openGui(Gui gui){
@@ -60,16 +62,24 @@ public class GuiHandler implements Disposable{
     }
 
     public void update(){
-        for(int i = 0; i < this.activeGuis.size(); i++){
-            Gui gui = this.activeGuis.get(i);
-
+        for(Gui gui : this.activeGuis){
             if(gui.shouldBeClosed()){
-                this.closeGui(gui);
-                i--;
+                this.guisToClose.add(gui);
             }
             else{
                 gui.update();
             }
+        }
+
+        this.closeGuis();
+    }
+
+    private void closeGuis(){
+        if(!this.guisToClose.isEmpty()){
+            for(Gui gui : this.guisToClose){
+                this.closeGui(gui);
+            }
+            this.guisToClose.clear();
         }
     }
 
@@ -155,10 +165,7 @@ public class GuiHandler implements Disposable{
     public void dispose(){
         this.batch.dispose();
 
-        //If this isn't moved up here size will be decreased inside for loop and Guis will linger
-        int size = this.activeGuis.size();
-        for(int i = 0; i < size; i++){
-            this.closeGui(0);
-        }
+        this.guisToClose.addAll(this.activeGuis);
+        this.closeGuis();
     }
 }

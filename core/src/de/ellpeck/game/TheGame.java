@@ -25,9 +25,7 @@ public class TheGame implements ApplicationListener{
     private GuiHandler guiHandler;
 
     //TODO Move all of this out to some sort of client handler
-    private PerspectiveCamera camera;
     private PlayerController playerController;
-    private Viewport viewport;
     private ShaderProgram shader;
     //TODO Move this out to some world handler or something
     private World world;
@@ -50,12 +48,6 @@ public class TheGame implements ApplicationListener{
     public void create(){
         Registry.init();
 
-        this.camera = new PerspectiveCamera();
-        this.camera.near = 0.1F;
-        this.camera.far = 1000F;
-        this.camera.position.set(5, 25, 10);
-        this.viewport = new ScalingViewport(Scaling.fill, 1, 1, this.camera);
-
         this.shader = new ShaderProgram(Gdx.files.local("game/shaders/world_vertex.glsl"), Gdx.files.local("game/shaders/world_fragment.glsl"));
         if(!this.shader.isCompiled()){
             String s = "Unable to compile World Shader! \nLog: "+this.shader.getLog();
@@ -77,13 +69,13 @@ public class TheGame implements ApplicationListener{
 
         this.guiHandler = new GuiHandler();
 
-        this.playerController = new PlayerController(player, this.camera, this.guiHandler);
+        this.playerController = new PlayerController(player, this.guiHandler);
         Gdx.input.setInputProcessor(this.playerController);
     }
 
     @Override
     public void resize(int width, int height){
-        this.viewport.update(width, height);
+        this.playerController.onResize(width, height);
         this.guiHandler.onScreenResize(width, height);
     }
 
@@ -107,7 +99,7 @@ public class TheGame implements ApplicationListener{
         Gdx.gl.glCullFace(GL20.GL_BACK);
 
         this.shader.begin();
-        this.shader.setUniformMatrix("u_camProjection", this.camera.combined);
+        this.shader.setUniformMatrix("u_camProjection", this.playerController.getCamMatrix());
 
         Registry.TILES_TEXTURE.bind();
         this.world.render(this.shader);

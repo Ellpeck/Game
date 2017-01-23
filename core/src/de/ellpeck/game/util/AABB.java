@@ -12,6 +12,10 @@ public class AABB{
     public double y2;
     public double z2;
 
+    public static AABB empty(){
+        return EMPTY.copy();
+    }
+
     public AABB(double x1, double y1, double z1, double x2, double y2, double z2){
         this.set(x1, y1, z1, x2, y2, z2);
     }
@@ -88,7 +92,7 @@ public class AABB{
         return EMPTY.equals(this) || (this.x1 == this.x2 && this.y1 == this.y2 && this.z1 == this.z2);
     }
 
-    public double calculateDistanceX(AABB other, double offsetX){
+    public double getCollisionMotionX(AABB other, double offsetX){
         if(other.y2 > this.y1 && other.y1 < this.y2 && other.z2 > this.z1 && other.z1 < this.z2){
             if(offsetX > 0 && other.x2 <= this.x1){
                 double diff = this.x1-other.x2;
@@ -106,7 +110,7 @@ public class AABB{
         return offsetX;
     }
 
-    public double calculateDistanceY(AABB other, double offsetY){
+    public double getCollisionMotionY(AABB other, double offsetY){
         if(other.x2 > this.x1 && other.x1 < this.x2 && other.z2 > this.z1 && other.z1 < this.z2){
             if(offsetY > 0 && other.y2 <= this.y1){
                 double diff = this.y1-other.y2;
@@ -124,7 +128,7 @@ public class AABB{
         return offsetY;
     }
 
-    public double calculateDistanceZ(AABB other, double offsetZ){
+    public double getCollisionMotionZ(AABB other, double offsetZ){
         if(other.x2 > this.x1 && other.x1 < this.x2 && other.y2 > this.y1 && other.y1 < this.y2){
             if(offsetZ > 0 && other.z2 <= this.z1){
                 double diff = this.z1-other.z2;
@@ -144,7 +148,7 @@ public class AABB{
 
     @Override
     public boolean equals(Object o){
-        if(o == this){
+        if(this == o){
             return true;
         }
         else if(o instanceof AABB){

@@ -56,7 +56,6 @@ project(":core") {
 
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-        compile 'com.google.guava:guava:20.0'
     }
 }
 

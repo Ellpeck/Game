@@ -10,18 +10,24 @@ import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.AABB;
 import de.ellpeck.game.util.CoordUtil;
 import de.ellpeck.game.util.MathUtil;
+import de.ellpeck.game.util.pos.Pos2;
+import de.ellpeck.game.util.pos.Pos3;
 import de.ellpeck.game.world.chunk.Chunk;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class World implements Disposable{
 
     private static final int MAX_CHUNK_VIEW = 2;
 
-    private final Map<Long, Chunk> loadedChunks = new ConcurrentHashMap<>();
+    private final Pos2 tempChunkGetter = Pos2.zero();
+
+    private final Map<Pos2, Chunk> loadedChunks = new HashMap<>();
+    private final Map<Pos2, Chunk> chunksToUnload = new HashMap<>();
+
     public final List<EntityPlayer> players = new ArrayList<>();
 
     public boolean addTileActivity(TileActivity activity, boolean forceLoad){
@@ -96,15 +102,14 @@ public class World implements Disposable{
     }
 
     public Chunk getChunkFromChunkCoords(int x, int z, boolean forceLoad){
-        long id = CoordUtil.getChunkId(x, z);
-        Chunk chunk = this.loadedChunks.get(id);
+        Chunk chunk = this.loadedChunks.get(this.tempChunkGetter.set(x, z));
         if(chunk != null){
             return chunk;
         }
         else{
             if(forceLoad){
                 chunk = new Chunk(this, x, z);
-                this.loadedChunks.put(id, chunk);
+                this.loadedChunks.put(new Pos2(x, z), chunk);
                 this.populateChunk(chunk);
 
                 return chunk;
@@ -127,21 +132,31 @@ public class World implements Disposable{
             }
         }
 
-        for(long id : this.loadedChunks.keySet()){
-            Chunk chunk = this.loadedChunks.get(id);
+        for(Map.Entry<Pos2, Chunk> entry : this.loadedChunks.entrySet()){
+            Chunk chunk = entry.getValue();
 
             if(chunk.loadedByPlayerTimer <= 0){
-                this.loadedChunks.remove(id);
-                chunk.onUnload();
-
-                this.saveChunkToDisk(chunk);
-
-                TheGame.LOGGER.debug("Unloading chunk at "+chunk.x+", "+chunk.z+"!");
+                this.chunksToUnload.put(entry.getKey(), chunk);
             }
             else{
                 chunk.update();
                 chunk.loadedByPlayerTimer--;
             }
+        }
+
+        if(!this.chunksToUnload.isEmpty()){
+            for(Map.Entry<Pos2, Chunk> entry : this.chunksToUnload.entrySet()){
+                this.loadedChunks.remove(entry.getKey());
+
+                Chunk chunk = entry.getValue();
+                chunk.onUnload();
+                this.saveChunkToDisk(chunk);
+
+                TheGame.LOGGER.debug("Unloaded chunk at "+chunk.x+", "+chunk.z+"!");
+            }
+
+            TheGame.LOGGER.debug("Unloaded "+this.chunksToUnload.size()+" chunks.");
+            this.chunksToUnload.clear();
         }
     }
 
