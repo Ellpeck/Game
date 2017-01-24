@@ -4,18 +4,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.ellpeck.game.gui.GuiHandler;
+import de.ellpeck.game.util.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerController implements InputProcessor{
+
+    private final Vector3 tempVec = new Vector3();
+    private final Matrix4 tempMat = new Matrix4();
 
     private final EntityPlayer player;
     private final Viewport viewport;
@@ -24,8 +27,6 @@ public class PlayerController implements InputProcessor{
 
     private final List<Integer> keys = new ArrayList<>();
     private final Matrix4 lookDirectionMatrix = new Matrix4();
-    private final Vector3 tempVec = new Vector3();
-    private final Matrix4 tempMat = new Matrix4();
 
     private boolean isMouseCaught;
 
@@ -35,7 +36,7 @@ public class PlayerController implements InputProcessor{
     private static final int BACKWARD = Keys.S;
     private static final int JUMP = Keys.SPACE;
 
-    private static final float ROTATION_DEGREES_PER_PIXEL = 0.5F;
+    private static final float ROTATION_DEGREES_PER_PIXEL = 0.3F;
     private static final float PLAYER_HEIGHT_OFFSET = 1.75F;
 
     public PlayerController(EntityPlayer player, GuiHandler guiHandler){
@@ -45,7 +46,7 @@ public class PlayerController implements InputProcessor{
         this.camera = new PerspectiveCamera();
         this.camera.near = 0.1F;
         this.camera.far = 1000F;
-        this.camera.fieldOfView = 80F;
+        this.camera.fieldOfView = 70F;
         this.viewport = new ScalingViewport(Scaling.fill, 1, 1, this.camera);
     }
 
@@ -108,10 +109,10 @@ public class PlayerController implements InputProcessor{
             float deltaX = -Gdx.input.getDeltaX()*ROTATION_DEGREES_PER_PIXEL;
             float deltaY = -Gdx.input.getDeltaY()*ROTATION_DEGREES_PER_PIXEL;
 
-            this.player.yaw -= deltaX;
-            this.player.pitch += deltaY;
+            this.player.yaw = (this.player.yaw-deltaX)%360;
+            this.player.pitch = MathUtil.clamp(this.player.pitch+deltaY, -90, 90)%360;
 
-            this.lookDirectionMatrix.setFromEulerAngles((float)-this.player.yaw%360, (float)this.player.pitch%360, 0F);
+            this.lookDirectionMatrix.setFromEulerAngles((float)-this.player.yaw, (float)this.player.pitch, 0F);
 
             return true;
         }

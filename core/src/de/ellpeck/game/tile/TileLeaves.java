@@ -5,8 +5,8 @@ import de.ellpeck.game.world.World;
 
 public class TileLeaves extends TileSingleTextured{
 
-    public TileLeaves(){
-        super("leaves");
+    public TileLeaves(int id){
+        super(id);
         this.setTextureCoords(5, 0);
     }
 

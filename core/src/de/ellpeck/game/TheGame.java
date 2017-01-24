@@ -27,6 +27,7 @@ public class TheGame implements ApplicationListener{
     //TODO Move all of this out to some sort of client handler
     private PlayerController playerController;
     private ShaderProgram shader;
+    private int camProjLocation;
     //TODO Move this out to some world handler or something
     private World world;
 
@@ -58,6 +59,7 @@ public class TheGame implements ApplicationListener{
             LOGGER.info("World Shader compiled successfully.");
             LOGGER.info("Shader Log: "+this.shader.getLog());
         }
+        this.camProjLocation = this.shader.getUniformLocation("u_camProjection");
 
         this.world = new World();
         this.world.setTile(0, 21, 5, Registry.TILE_LOG, 2, true);
@@ -99,7 +101,7 @@ public class TheGame implements ApplicationListener{
         Gdx.gl.glCullFace(GL20.GL_BACK);
 
         this.shader.begin();
-        this.shader.setUniformMatrix("u_camProjection", this.playerController.getCamMatrix());
+        this.shader.setUniformMatrix(this.camProjLocation, this.playerController.getCamMatrix());
 
         Registry.TILES_TEXTURE.bind();
         this.world.render(this.shader);

@@ -11,7 +11,6 @@ import de.ellpeck.game.util.AABB;
 import de.ellpeck.game.util.CoordUtil;
 import de.ellpeck.game.util.MathUtil;
 import de.ellpeck.game.util.pos.Pos2;
-import de.ellpeck.game.util.pos.Pos3;
 import de.ellpeck.game.world.chunk.Chunk;
 
 import java.util.ArrayList;

@@ -6,19 +6,20 @@ import de.ellpeck.game.Registry;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.AABB;
 import de.ellpeck.game.util.Direction;
+import de.ellpeck.game.util.rendering.TextureCoord;
 import de.ellpeck.game.world.World;
 
 public class Tile implements Disposable{
 
-    public final String name;
+    public final int id;
     private final AABB boundingBox = new AABB(0F, 0F, 0F, 1F, 1F, 1F);
 
-    public Tile(String name){
-        this.name = name;
+    public Tile(int id){
+        this.id = id;
     }
 
     public Tile register(){
-        Registry.TILE_REGISTRY.register(this.name, this);
+        Registry.TILE_REGISTRY.register(this.id, this);
         return this;
     }
 
@@ -47,8 +48,8 @@ public class Tile implements Disposable{
         return tileAdj == null || tileAdj.isFaceTransparent(world, x+face.xOffset, y+face.yOffset, z+face.zOffset, face.getOpposite());
     }
 
-    public Vector2 getTextureCoordsForSide(World world, int x, int y, int z, Direction face){
-        return Vector2.Zero;
+    public TextureCoord getTextureCoordsForSide(World world, int x, int y, int z, Direction face){
+        return TextureCoord.NONE;
     }
 
     public AABB getCollisionBox(World world, int x, int y, int z, int meta){

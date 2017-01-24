@@ -22,7 +22,7 @@ public class Entity implements Disposable{
     public boolean collidedHor;
     public boolean collidedVert;
 
-    private final AABB boundingBox = new AABB(-0.4, 0, -0.4, 0.4, 1.8, 0.4);
+    private final AABB boundingBox = new AABB(-0.3, 0, -0.3, 0.3, 1.8, 0.3);
 
     public double motionX;
     public double motionY;
@@ -151,12 +151,12 @@ public class Entity implements Disposable{
 
     public void moveRelative(double strafe, double forward, double friction){
         if(strafe != 0 || forward != 0){
-            double length = friction/Math.sqrt(strafe*strafe+forward*forward);
+            double speed = friction/Math.sqrt(strafe*strafe+forward*forward);
 
-            strafe = strafe*length;
-            forward = forward*length;
+            strafe = strafe*speed;
+            forward = forward*speed;
 
-            double yaw = Math.toRadians(this.yaw%360);
+            double yaw = Math.toRadians(this.yaw);
             double sin = Math.sin(yaw);
             double cos = Math.cos(yaw);
 
