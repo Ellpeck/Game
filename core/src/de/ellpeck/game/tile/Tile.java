@@ -1,12 +1,11 @@
 package de.ellpeck.game.tile;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import de.ellpeck.game.Registry;
 import de.ellpeck.game.tile.activity.TileActivity;
 import de.ellpeck.game.util.AABB;
 import de.ellpeck.game.util.Direction;
-import de.ellpeck.game.util.rendering.TextureCoord;
+import de.ellpeck.game.util.render.TextureCoord;
 import de.ellpeck.game.world.World;
 
 public class Tile implements Disposable{

@@ -1,4 +1,4 @@
-package de.ellpeck.game.util.rendering;
+package de.ellpeck.game.util.render;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;

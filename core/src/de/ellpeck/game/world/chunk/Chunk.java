@@ -74,7 +74,7 @@ public class Chunk implements Disposable{
     public Tile getTile(int x, int y, int z){
         TileLayer layer = this.getTileLayer(y);
         if(layer != null){
-            return layer.getTile(x, z);
+            return layer.getTile(x, y, z);
         }
         else{
             return null;
@@ -85,7 +85,7 @@ public class Chunk implements Disposable{
         TileLayer layer = this.getTileLayer(y);
 
         if(layer != null){
-            if(layer.setTile(x, z, tile, meta)){
+            if(layer.setTile(x, y, z, tile, meta)){
                 this.reformMeshesAround(x, z);
                 return true;
             }
@@ -96,7 +96,7 @@ public class Chunk implements Disposable{
     public int getMetadata(int x, int y, int z){
         TileLayer layer = this.getTileLayer(y);
         if(layer != null){
-            return layer.getMetadata(x, z);
+            return layer.getMetadata(x, y, z);
         }
         else{
             return 0;
@@ -106,7 +106,7 @@ public class Chunk implements Disposable{
     public boolean setMetadata(int x, int y, int z, int meta){
         TileLayer layer = this.getTileLayer(y);
         if(layer != null){
-            if(layer.setMetadata(x, z, meta)){
+            if(layer.setMetadata(x, y, z, meta)){
                 this.reformMeshesAround(x, z);
                 return true;
             }
@@ -119,7 +119,7 @@ public class Chunk implements Disposable{
             TileLayer theLayer = this.tileLayers[layer];
 
             if(theLayer == null){
-                theLayer = new TileLayer(this, layer);
+                theLayer = new TileLayer(this);
                 this.tileLayers[layer] = theLayer;
             }
 

@@ -1,8 +1,7 @@
 package de.ellpeck.game.tile;
 
-import com.badlogic.gdx.math.Vector2;
 import de.ellpeck.game.util.Direction;
-import de.ellpeck.game.util.rendering.TextureCoord;
+import de.ellpeck.game.util.render.TextureCoord;
 import de.ellpeck.game.world.World;
 
 public class TileSingleTextured extends Tile{

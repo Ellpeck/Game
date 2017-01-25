@@ -43,7 +43,7 @@ public class World implements Disposable{
     public TileActivity getTileActivity(int x, int y, int z, boolean forceLoad){
         Chunk chunk = this.getChunkFromWorldCoords(x, z, forceLoad);
         if(chunk != null){
-            return chunk.getTileActivity(CoordUtil.relativeToIncludingChunk(x), y, CoordUtil.relativeToIncludingChunk(z));
+            return chunk.getTileActivity(x, y, z);
         }
         else{
             return null;
@@ -69,7 +69,7 @@ public class World implements Disposable{
     public Tile getTile(int x, int y, int z, boolean forceLoad){
         Chunk chunk = this.getChunkFromWorldCoords(x, z, forceLoad);
         if(chunk != null){
-            return chunk.getTile(CoordUtil.relativeToIncludingChunk(x), y, CoordUtil.relativeToIncludingChunk(z));
+            return chunk.getTile(x, y, z);
         }
         else{
             return null;
@@ -78,13 +78,13 @@ public class World implements Disposable{
 
     public boolean setTile(int x, int y, int z, Tile tile, int meta, boolean forceLoad){
         Chunk chunk = this.getChunkFromWorldCoords(x, z, forceLoad);
-        return chunk != null && chunk.setTile(CoordUtil.relativeToIncludingChunk(x), y, CoordUtil.relativeToIncludingChunk(z), tile, meta);
+        return chunk != null && chunk.setTile(x, y, z, tile, meta);
     }
 
     public int getMetadata(int x, int y, int z, boolean forceLoad){
         Chunk chunk = this.getChunkFromWorldCoords(x, z, forceLoad);
         if(chunk != null){
-            return chunk.getMetadata(CoordUtil.relativeToIncludingChunk(x), y, CoordUtil.relativeToIncludingChunk(z));
+            return chunk.getMetadata(x, y, z);
         }
         else{
             return 0;
@@ -93,7 +93,7 @@ public class World implements Disposable{
 
     public boolean setMetadata(int x, int y, int z, int meta, boolean forceLoad){
         Chunk chunk = this.getChunkFromWorldCoords(x, z, forceLoad);
-        return chunk != null && chunk.setMetadata(CoordUtil.relativeToIncludingChunk(x), y, CoordUtil.relativeToIncludingChunk(z), meta);
+        return chunk != null && chunk.setMetadata(x, y, z, meta);
     }
 
     public Chunk getChunkFromWorldCoords(int x, int z, boolean forceLoad){

@@ -1,4 +1,4 @@
-package de.ellpeck.game.util.rendering;
+package de.ellpeck.game.util.render;
 
 import de.ellpeck.game.util.pos.Pos2;
 

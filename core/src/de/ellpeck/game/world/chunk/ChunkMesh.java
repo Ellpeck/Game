@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 import de.ellpeck.game.tile.Tile;
 import de.ellpeck.game.util.Direction;
-import de.ellpeck.game.util.rendering.MeshBuilder;
+import de.ellpeck.game.util.render.MeshBuilder;
 
 public class ChunkMesh implements Disposable{
 
